@@ -58,7 +58,8 @@ func TestAddGetDelete(t *testing.T) {
 	// проверьте, что посылку больше нельзя получить из БД
 	err = store.Delete(number)
 	require.NoError(t, err)
-	deletedParcel, _ := store.Get(number)
+	deletedParcel, err := store.Get(number)
+	require.Error(t, err)
 	assert.Empty(t, deletedParcel)
 }
 

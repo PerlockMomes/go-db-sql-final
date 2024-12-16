@@ -21,11 +21,11 @@ func (s ParcelStore) Add(p Parcel) (int, error) {
 		sql.Named("address", p.Address),
 		sql.Named("created_at", p.CreatedAt))
 	if err != nil {
-		return 0, fmt.Errorf("произошла ошибка добавления новой записи в базу данных, %w\n", err)
+		return 0, fmt.Errorf("произошла ошибка добавления новой записи в базу данных, %w", err)
 	}
 	number, err := parcelAdd.LastInsertId()
 	if err != nil {
-		return 0, fmt.Errorf("произошла ошибка возврата последнего добаленного номера, %w\n", err)
+		return 0, fmt.Errorf("произошла ошибка возврата последнего добаленного номера, %w", err)
 	}
 	return int(number), nil
 }
@@ -46,16 +46,20 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 	getRows, err := s.db.Query("select * from parcel where client = :client",
 		sql.Named("client", client))
 	if err != nil {
-		return nil, fmt.Errorf("клиент %d не найден, %w\n", client, err)
+		return nil, fmt.Errorf("клиент %d не найден, %w", client, err)
 	}
 	defer getRows.Close()
 	for getRows.Next() {
 		parcel := Parcel{}
 		err := getRows.Scan(&parcel.Number, &parcel.Client, &parcel.Status, &parcel.Address, &parcel.CreatedAt)
 		if err != nil {
-			return nil, fmt.Errorf("клиент № %d, произошла ошибка копирования, %w\n", client, err)
+			return nil, fmt.Errorf("клиент № %d, произошла ошибка копирования, %w", client, err)
 		}
 		sliceParcel = append(sliceParcel, parcel)
+	}
+	err = getRows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("произошла ошибка итерации, %w", err)
 	}
 	return sliceParcel, nil
 }
@@ -65,7 +69,7 @@ func (s ParcelStore) SetStatus(number int, status string) error {
 		sql.Named("status", status),
 		sql.Named("number", number))
 	if err != nil {
-		return fmt.Errorf("не получилось обновить статус посылки № %d, %w\n", number, err)
+		return fmt.Errorf("не получилось обновить статус посылки № %d, %w", number, err)
 	}
 	return nil
 }
@@ -76,7 +80,7 @@ func (s ParcelStore) SetAddress(number int, address string) error {
 		sql.Named("number", number),
 		sql.Named("status", ParcelStatusRegistered))
 	if err != nil {
-		return fmt.Errorf("не удалось обновить статус посылки № %d, %w\n", number, err)
+		return fmt.Errorf("не удалось обновить статус посылки № %d, %w", number, err)
 	}
 	return nil
 }
@@ -86,7 +90,7 @@ func (s ParcelStore) Delete(number int) error {
 		sql.Named("number", number),
 		sql.Named("status", ParcelStatusRegistered))
 	if err != nil {
-		return fmt.Errorf("не удалось удалить посылку № %d, %w\n", number, err)
+		return fmt.Errorf("не удалось удалить посылку № %d, %w", number, err)
 	}
 	return nil
 }
